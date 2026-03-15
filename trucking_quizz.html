@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trucking Terms Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: rgba(255,255,255,0.08);
+    --accent: #f5c842;
+    --accent2: #e07b2a;
+    --correct: #2ecc71;
+    --wrong: #e74c3c;
+    --text: #f0eeea;
+    --muted: #888ba0;
+  }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 2rem 1rem 4rem;
+    background-image:
+      radial-gradient(ellipse 60% 40% at 80% 10%, rgba(245,200,66,0.07) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 50% at 10% 90%, rgba(224,123,42,0.06) 0%, transparent 60%);
+  }
+  .header { width:100%; max-width:700px; display:flex; align-items:flex-end; gap:1rem; margin-bottom:2.5rem; padding-bottom:1.5rem; border-bottom:1px solid var(--border); }
+  .header-icon { font-size:2.8rem; line-height:1; }
+  .header-text h1 { font-family:'Bebas Neue',sans-serif; font-size:3rem; letter-spacing:2px; color:var(--accent); line-height:1; }
+  .header-text p { font-size:13px; color:var(--muted); margin-top:4px; }
+
+  .section-banner { width:100%; max-width:700px; background:linear-gradient(90deg,rgba(245,200,66,0.12),rgba(224,123,42,0.06)); border:1px solid rgba(245,200,66,0.2); border-radius:10px; padding:10px 18px; margin-bottom:1.25rem; display:flex; align-items:center; gap:10px; }
+  .section-banner strong { font-family:'Bebas Neue',sans-serif; font-size:1.2rem; letter-spacing:1px; color:var(--accent); }
+  .section-banner small { font-size:12px; color:var(--muted); margin-left:6px; }
+
+  .progress-wrap { width:100%; max-width:700px; margin-bottom:1.75rem; }
+  .progress-meta { display:flex; justify-content:space-between; font-size:13px; color:var(--muted); margin-bottom:8px; }
+  .progress-meta span:last-child { color:var(--accent); font-weight:600; }
+  .progress-track { height:5px; background:var(--surface2); border-radius:3px; overflow:hidden; }
+  .progress-fill { height:100%; background:linear-gradient(90deg,var(--accent2),var(--accent)); border-radius:3px; transition:width 0.5s ease; }
+
+  .card { width:100%; max-width:700px; background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:2rem; position:relative; overflow:hidden; }
+  .card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--accent2),var(--accent)); border-radius:16px 16px 0 0; }
+  .tag-pill { display:inline-block; background:rgba(245,200,66,0.12); color:var(--accent); border:1px solid rgba(245,200,66,0.25); border-radius:20px; padding:3px 12px; font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; margin-bottom:1rem; }
+  .question-text { font-size:19px; font-weight:500; line-height:1.55; margin-bottom:1.75rem; }
+
+  .options { display:flex; flex-direction:column; gap:10px; }
+  .opt { background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:13px 18px; font-size:15px; font-family:'DM Sans',sans-serif; color:var(--text); cursor:pointer; text-align:left; transition:border-color 0.15s,background 0.15s,transform 0.1s; line-height:1.45; }
+  .opt:hover:not([disabled]) { border-color:rgba(245,200,66,0.35); background:rgba(245,200,66,0.06); transform:translateX(3px); }
+  .opt.correct { background:rgba(46,204,113,0.12); border-color:var(--correct); color:#a8f5c8; }
+  .opt.wrong   { background:rgba(231,76,60,0.10); border-color:var(--wrong);   color:#f5a8a2; }
+  .opt.reveal  { background:rgba(46,204,113,0.08); border-color:rgba(46,204,113,0.5); color:#a8f5c8; }
+
+  .feedback { margin-top:1.25rem; padding:12px 16px; border-radius:8px; font-size:14px; line-height:1.5; display:none; }
+  .feedback.show { display:block; animation:fadeUp 0.25s ease; }
+  .feedback.ok  { background:rgba(46,204,113,0.1); color:#a8f5c8; border-left:3px solid var(--correct); }
+  .feedback.bad { background:rgba(231,76,60,0.1);  color:#f5a8a2; border-left:3px solid var(--wrong); }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
+  .btn-next { margin-top:1.5rem; display:none; padding:12px 32px; background:var(--accent); color:#111; border:none; border-radius:8px; font-family:'Bebas Neue',sans-serif; font-size:1.1rem; letter-spacing:1.5px; cursor:pointer; transition:background 0.15s,transform 0.1s; }
+  .btn-next:hover { background:#ffd443; transform:translateY(-1px); }
+
+  .result-card { width:100%; max-width:700px; background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:3rem 2rem; text-align:center; }
+  .result-big { font-family:'Bebas Neue',sans-serif; font-size:6rem; color:var(--accent); letter-spacing:3px; line-height:1; }
+  .result-sub { font-size:15px; color:var(--muted); margin:0.5rem 0 1.5rem; }
+  .result-msg { font-size:18px; font-weight:500; color:var(--text); margin-bottom:2rem; line-height:1.5; }
+  .result-badges { display:flex; justify-content:center; gap:12px; flex-wrap:wrap; margin-bottom:2rem; }
+  .badge { padding:6px 16px; border-radius:20px; font-size:13px; font-weight:600; }
+  .badge-green { background:rgba(46,204,113,0.15); color:#a8f5c8; border:1px solid rgba(46,204,113,0.3); }
+  .badge-red   { background:rgba(231,76,60,0.12);  color:#f5a8a2; border:1px solid rgba(231,76,60,0.3); }
+  .btn-restart { padding:14px 40px; background:transparent; color:var(--accent); border:1px solid var(--accent); border-radius:8px; font-family:'Bebas Neue',sans-serif; font-size:1.2rem; letter-spacing:2px; cursor:pointer; transition:background 0.15s,color 0.15s; }
+  .btn-restart:hover { background:var(--accent); color:#111; }
+
+  .review-wrap { width:100%; max-width:700px; margin-top:2rem; }
+  .review-title { font-family:'Bebas Neue',sans-serif; font-size:1.6rem; color:var(--muted); letter-spacing:1px; margin-bottom:0.5rem; }
+  .review-file-title { font-family:'Bebas Neue',sans-serif; font-size:1rem; letter-spacing:1px; color:var(--accent2); margin:1.25rem 0 0.5rem; padding-left:4px; }
+  .review-item { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px 18px; margin-bottom:8px; display:flex; align-items:flex-start; gap:14px; }
+  .review-dot { width:10px; height:10px; border-radius:50%; margin-top:5px; flex-shrink:0; background:var(--wrong); }
+  .review-q { font-size:14px; color:var(--muted); margin-bottom:3px; }
+  .review-a { font-size:14px; color:var(--text); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-icon">🚛</div>
+  <div class="header-text">
+    <h1>Trucking Terms Quiz</h1>
+    <p>Questions follow the order of your study notes — File 1 then File 2</p>
+  </div>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-meta">
+    <span id="q-counter">Question 1</span>
+    <span id="score-display">Score: 0</span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+</div>
+
+<div id="section-area"></div>
+<div id="main-area"></div>
+
+<script>
+const Q = [
+  // ── FILE 1 ──────────────────────────────────────────────────────
+  {file:"File 1",tag:"People & Roles",q:"What is a Customer?",a:"A company or person who orders transportation service",opts:["A company or person who orders transportation service","The company that physically moves the freight","An intermediary between carrier and customer","The company that receives the freight"]},
+  {file:"File 1",tag:"People & Roles",q:"What is a Broker?",a:"An intermediary between carrier and customer",opts:["An intermediary between carrier and customer","The company that transports the load","The company that sends freight","A payment for waiting at a facility"]},
+  {file:"File 1",tag:"People & Roles",q:"What is a Carrier?",a:"A trucking company that transports the load",opts:["A trucking company that transports the load","An intermediary between carrier and customer","The company that sends the freight","A company that orders transportation"]},
+  {file:"File 1",tag:"People & Roles",q:"What is a Shipper?",a:"The company that sends the freight",opts:["The company that receives the freight","The company that sends the freight","The intermediary between carrier and customer","The company that orders transportation"]},
+  {file:"File 1",tag:"People & Roles",q:"What is a Receiver?",a:"The company that receives the freight",opts:["The company that sends the freight","A trucking company that transports the load","The company that receives the freight","An intermediary between carrier and customer"]},
+  {file:"File 1",tag:"Documents",q:"What is RC (Rate Confirmation)?",a:"An agreement between carrier and broker for 1 load",opts:["An agreement between carrier and broker for 1 load","A receipt issued after delivery","A government permit for overweight loads","A daily fuel cost report"]},
+  {file:"File 1",tag:"Documents",q:"What information does an RC include?",a:"Load number, pickup/delivery address, times, and rate",opts:["Load number, pickup/delivery address, times, and rate","Only the rate and carrier name","Driver name, truck number, and fuel cost","Just the pickup address and time"]},
+  {file:"File 1",tag:"Payments",q:"What is TONU (Truck Order Not Used)?",a:"Money paid when the load is cancelled",opts:["Money paid when the load is cancelled","Money for waiting more than 2 hours","A fee for partial loads","Money paid for toll roads"]},
+  {file:"File 1",tag:"Payments",q:"What is Detention?",a:"Money for waiting — first 2 hours free, after that detention is paid",opts:["Money for waiting — first 2 hours free, after that detention is paid","Paid from the first minute of waiting","Paid after 24 hours of waiting","Always included in the base rate"]},
+  {file:"File 1",tag:"Payments",q:"What is a Layover?",a:"Money for waiting per day after 24 hours",opts:["Money for waiting per day after 24 hours","Unpaid miles between loads","A bonus for early delivery","Payment for driving on toll roads"]},
+  {file:"File 1",tag:"Documents",q:"What is a BOL (Bill of Lading)?",a:"Proof that we got the load",opts:["Proof that we got the load","Proof that the load was delivered","A payment document to the broker","A list of available loads"]},
+  {file:"File 1",tag:"Documents",q:"What is a POD (Proof of Delivery)?",a:"When the receiver signs, it proves that the load was delivered",opts:["When the receiver signs, it proves that the load was delivered","When the driver signs at pickup","A digital tracking record","The broker's copy of the BOL"]},
+  {file:"File 1",tag:"Timing",q:"What does ETA stand for?",a:"Estimated Time of Arrival",opts:["Estimated Time of Arrival","Exact Time of Arrival","Estimated Total Amount","Emergency Truck Alert"]},
+  {file:"File 1",tag:"Operations",q:"What is Deadhead?",a:"Unpaid miles",opts:["Unpaid miles","Paid rest time between loads","Driving on a toll road","A full truck that cannot take more cargo"]},
+  {file:"File 1",tag:"Operations",q:"What is a Seal used for?",a:"Proof that we did not touch the load",opts:["Proof that we did not touch the load","To mark a delivery as complete","To lock the dock door","A sticker placed on the Rate Confirmation"]},
+  {file:"File 1",tag:"Timing",q:"What does FCFS mean?",a:"First Come First Serve — a time window, e.g. from 8:00 to 12:00",opts:["First Come First Serve — a time window, e.g. from 8:00 to 12:00","An exact appointment time","A fee for arriving early","A daily schedule sent by the broker"]},
+  {file:"File 1",tag:"Timing",q:"What is an Appointment (timing)?",a:"An exact time — example: 10:00",opts:["An exact time — example: 10:00","A time window from to","A flexible arrival estimate","A pre-booked dock door"]},
+  {file:"File 1",tag:"Facilities",q:"What is a Dock Door?",a:"A garage place for loading or unloading",opts:["A garage place for loading or unloading","The entrance to a truck stop","A type of seal on a trailer","The door on the back of the trailer"]},
+  {file:"File 1",tag:"Load Types",q:"What is a Full Load?",a:"Truck loaded fully — you cannot work with another broker",opts:["Truck loaded fully — you cannot work with another broker","Truck loaded partially so other freight can be added","A load that requires a special permit","A load that includes toll road fees"]},
+  {file:"File 1",tag:"Load Types",q:"What is a Partial Load?",a:"Truck loaded partially — you can work with another broker",opts:["Truck loaded partially — you can work with another broker","Truck loaded fully, locked to one broker","A load with no seal required","A load under 10,000 lbs"]},
+  {file:"File 1",tag:"Roads",q:"What is a Toll Road? Give examples.",a:"Paid roads — examples: 76, 80, 95",opts:["Paid roads — examples: 76, 80, 95","Any highway over 200 miles","A road restricted to semi-trucks only","A road that requires a special permit"]},
+  {file:"File 1",tag:"Payments",q:"What are EFS Check, Comcheck, and T-Check?",a:"Types of payment checks used in trucking",opts:["Types of payment checks used in trucking","Types of load documentation","Scale certification systems","Truck stop loyalty programs"]},
+  // ── FILE 2 ──────────────────────────────────────────────────────
+  {file:"File 2",tag:"Payments",q:"What is a Lumper Fee?",a:"A payment to workers who load or unload freight from a truck",opts:["A payment to workers who load or unload freight from a truck","A toll road surcharge","A late delivery penalty","An extra fuel charge"]},
+  {file:"File 2",tag:"Payments",q:"Who pays the Lumper Fee?",a:"The broker pays the lumper fee",opts:["The broker pays the lumper fee","The driver pays out of pocket","The receiver always pays","The shipper always pays"]},
+  {file:"File 2",tag:"Payments",q:"What are the 3 ways to deal with lumpers?",a:"Connect broker and lumper, get money from broker first, check the RC",opts:["Connect broker and lumper, get money from broker first, check the RC","Pay cash, bill later, or refuse","Only pay by EFS check","Lumpers are always handled by the receiver"]},
+  {file:"File 2",tag:"Truck Stops",q:"Which of these is a major truck stop from your notes?",a:"Pilot Flying J",opts:["Pilot Flying J","Speedway","Shell","Chevron"]},
+  {file:"File 2",tag:"Truck Stops",q:"Which one is NOT in your list of truck stops?",a:"Speedway",opts:["Speedway","Loves","Petro","TA"]},
+  {file:"File 2",tag:"Truck Stops",q:"Name all 5 truck stop chains from your notes.",a:"Loves, Petro, Pilot Flying J, TA, Speedco",opts:["Loves, Petro, Pilot Flying J, TA, Speedco","Loves, Shell, BP, TA, Petro","Pilot Flying J, Walmart, Petro, TA, Loves","Flying J, TA, Exxon, Speedco, BP"]},
+  {file:"File 2",tag:"Regulations",q:"What is a Cat Scale?",a:"A scale station for measuring weight",opts:["A scale station for measuring weight","A certification for overweight loads","A scale found only in California","A type of dock door scale"]},
+  {file:"File 2",tag:"Regulations",q:"What is the weight limit for the Steer Axle?",a:"12,000 lbs",opts:["12,000 lbs","34,000 lbs","18,000 lbs","8,000 lbs"]},
+  {file:"File 2",tag:"Regulations",q:"What is the weight limit for the Drive Axle?",a:"34,000 lbs",opts:["34,000 lbs","12,000 lbs","40,000 lbs","28,000 lbs"]},
+  {file:"File 2",tag:"Regulations",q:"What is the weight limit for the Trailer Axle?",a:"34,000 lbs",opts:["34,000 lbs","12,000 lbs","40,000 lbs","20,000 lbs"]},
+  {file:"File 2",tag:"Regulations",q:"What is the legal maximum gross weight for a semi-truck in the US?",a:"80,000 lbs",opts:["80,000 lbs","60,000 lbs","70,000 lbs","90,000 lbs"]},
+  {file:"File 2",tag:"Communication",q:"What does 'Please be informed that' signal?",a:"An emergency or that something unexpected happened",opts:["An emergency or that something unexpected happened","A routine check-in update","The driver has arrived","A request for the POD"]},
+  {file:"File 2",tag:"Communication",q:"What does 'Current Location:' mean in an update?",a:"You are sending a location update to the broker",opts:["You are sending a location update to the broker","The load has been delivered","The driver is requesting fuel money","The broker is asking for the BOL"]},
+  {file:"File 2",tag:"Communication",q:"What does 'Are we good to go?' mean?",a:"Asking for confirmation or approval to proceed",opts:["Asking for confirmation or approval to proceed","Asking if the truck passed inspection","Asking about road conditions","Asking if the BOL is signed"]},
+  {file:"File 2",tag:"Communication",q:"What does '@pickup' mean in an update message?",a:"The driver is currently at the pickup location",opts:["The driver is currently at the pickup location","The pickup was cancelled","The rate confirmation was sent","The pickup appointment is confirmed"]},
+  {file:"File 2",tag:"Communication",q:"What does '@Del' mean in an update message?",a:"The driver is currently at the delivery location",opts:["The driver is currently at the delivery location","The delivery was completed","The POD has been signed","The receiver refused the load"]},
+];
+
+const TOTAL = Q.length;
+let cur = 0, score = 0, answered = false, results = [];
+
+function shuf(a) { return [...a].sort(() => Math.random() - 0.5); }
+
+function updateUI() {
+  const pct = (cur / TOTAL) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('q-counter').textContent = cur < TOTAL ? 'Question ' + (cur + 1) + ' of ' + TOTAL : 'Done!';
+  document.getElementById('score-display').textContent = 'Score: ' + score;
+}
+
+function renderBanner() {
+  const el = document.getElementById('section-area');
+  if (cur >= TOTAL) { el.innerHTML = ''; return; }
+  const prev = cur > 0 ? Q[cur - 1] : null;
+  if (!prev || prev.file !== Q[cur].file) {
+    const isF2 = Q[cur].file === 'File 2';
+    el.innerHTML = '<div class="section-banner">' +
+      '<span style="font-size:20px">' + (isF2 ? '📋' : '📄') + '</span>' +
+      '<div><strong>' + (isF2 ? 'Saturday Notes' : 'Trucking Terms') + '</strong>' +
+      '<small>' + (isF2 ? '— saturday_notes.pdf' : '— trucking_terms.pdf') + '</small></div>' +
+      '</div>';
+  } else {
+    el.innerHTML = '';
+  }
+}
+
+function render() {
+  const area = document.getElementById('main-area');
+  if (cur >= TOTAL) { showResult(area); return; }
+  renderBanner();
+
+  const q = Q[cur];
+  const opts = shuf(q.opts);
+  const correctAnswer = q.a;
+
+  // Build card
+  area.innerHTML =
+    '<div class="card">' +
+      '<div class="tag-pill">' + q.tag + '</div>' +
+      '<div class="question-text">' + q.q + '</div>' +
+      '<div class="options" id="opts-container"></div>' +
+      '<div class="feedback" id="fb"></div>' +
+      '<button class="btn-next" id="nb">' + (cur < TOTAL - 1 ? 'Next Question →' : 'See Results →') + '</button>' +
+    '</div>';
+
+  // Add option buttons via JS (no inline onclick, no encoding issues)
+  const container = document.getElementById('opts-container');
+  opts.forEach(function(optText) {
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    btn.textContent = optText;
+    btn.addEventListener('click', function() {
+      handleChoice(optText, correctAnswer);
+    });
+    container.appendChild(btn);
+  });
+
+  // Next button
+  document.getElementById('nb').addEventListener('click', function() {
+    cur++;
+    updateUI();
+    render();
+  });
+
+  answered = false;
+}
+
+function handleChoice(chosen, correct) {
+  if (answered) return;
+  answered = true;
+
+  const allBtns = document.querySelectorAll('#opts-container .opt');
+  allBtns.forEach(function(b) { b.disabled = true; });
+
+  const fb = document.getElementById('fb');
+  const isCorrect = chosen === correct;
+
+  if (isCorrect) {
+    // Mark the clicked button green
+    allBtns.forEach(function(b) {
+      if (b.textContent === chosen) b.classList.add('correct');
+    });
+    fb.textContent = '✓ Correct!';
+    fb.className = 'feedback show ok';
+    score++;
+  } else {
+    // Mark chosen red, correct green
+    allBtns.forEach(function(b) {
+      if (b.textContent === chosen) b.classList.add('wrong');
+      if (b.textContent === correct) b.classList.add('reveal');
+    });
+    fb.innerHTML = '✗ Not quite. Correct answer: <strong>' + correct + '</strong>';
+    fb.className = 'feedback show bad';
+  }
+
+  results.push({ file: Q[cur].file, q: Q[cur].q, a: correct, ok: isCorrect });
+  document.getElementById('score-display').textContent = 'Score: ' + score;
+  document.getElementById('nb').style.display = 'inline-block';
+}
+
+function showResult(area) {
+  document.getElementById('section-area').innerHTML = '';
+  document.getElementById('progress-fill').style.width = '100%';
+  const pct = Math.round(score / TOTAL * 100);
+  const msg =
+    pct >= 90 ? '🏆 Outstanding! You know your trucking terms like a pro.' :
+    pct >= 75 ? '👍 Great work! A little review and you will nail it.' :
+    pct >= 55 ? '📖 Good progress — review the missed terms and try again.' :
+                '🔄 Keep studying your notes — you are building the foundation!';
+
+  const missed = results.filter(function(r) { return !r.ok; });
+  const okCount = results.filter(function(r) { return r.ok; }).length;
+
+  // Group missed by file
+  const g = {};
+  missed.forEach(function(r) {
+    if (!g[r.file]) g[r.file] = [];
+    g[r.file].push(r);
+  });
+
+  let reviewHtml = '';
+  if (missed.length > 0) {
+    reviewHtml = '<div class="review-wrap"><div class="review-title">Missed Questions</div>';
+    Object.keys(g).forEach(function(f) {
+      reviewHtml += '<div class="review-file-title">📄 ' + (f === 'File 2' ? 'File 2: Saturday Notes' : 'File 1: Trucking Terms') + '</div>';
+      g[f].forEach(function(r) {
+        reviewHtml += '<div class="review-item"><div class="review-dot"></div><div><div class="review-q">' + r.q + '</div><div class="review-a">' + r.a + '</div></div></div>';
+      });
+    });
+    reviewHtml += '</div>';
+  } else {
+    reviewHtml = '<div style="text-align:center;color:#a8f5c8;font-size:15px;margin-top:1.5rem;">🎉 Perfect score! No missed questions!</div>';
+  }
+
+  area.innerHTML =
+    '<div class="result-card">' +
+      '<div class="result-big">' + score + '/' + TOTAL + '</div>' +
+      '<div class="result-sub">' + pct + '% correct</div>' +
+      '<div class="result-msg">' + msg + '</div>' +
+      '<div class="result-badges">' +
+        '<span class="badge badge-green">✓ ' + okCount + ' Correct</span>' +
+        '<span class="badge badge-red">✗ ' + missed.length + ' Missed</span>' +
+      '</div>' +
+      '<button class="btn-restart" id="restart-btn">Try Again</button>' +
+    '</div>' +
+    reviewHtml;
+
+  document.getElementById('restart-btn').addEventListener('click', function() {
+    cur = 0; score = 0; answered = false; results = [];
+    updateUI();
+    render();
+  });
+}
+
+// Start
+updateUI();
+render();
+</script>
+</body>
+</html>
